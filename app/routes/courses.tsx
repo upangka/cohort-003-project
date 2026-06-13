@@ -2,10 +2,12 @@ import { Form, Link, useSearchParams, useNavigation, isRouteErrorResponse } from
 import type { Route } from "./+types/courses";
 import { buildCourseQuery, getLessonCountForCourse } from "~/services/courseService";
 import { getAllCategories } from "~/services/categoryService";
+import { getCourseRatingStatsBatch } from "~/services/reviewService";
 import { CourseStatus } from "~/db/schema";
 import { Card, CardContent, CardFooter, CardHeader } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
+import { StarRating } from "~/components/star-rating";
 import { AlertTriangle, BookOpen, Search } from "lucide-react";
 import { CourseImage } from "~/components/course-image";
 import { UserAvatar } from "~/components/user-avatar";
@@ -69,9 +71,21 @@ export async function loader({ request }: Route.LoaderArgs) {
     };
   });
 
+  // Fetch rating stats for all displayed courses
+  const courseIds = coursesWithLessonCount.map((c) => c.id);
+  const ratingStats = getCourseRatingStatsBatch(courseIds);
+  const coursesWithRatings = coursesWithLessonCount.map((course) => {
+    const stats = ratingStats.get(course.id);
+    return {
+      ...course,
+      averageRating: stats?.averageRating ?? null,
+      reviewCount: stats?.reviewCount ?? 0,
+    };
+  });
+
   const categories = getAllCategories();
 
-  return { courses: coursesWithLessonCount, categories, search, category, currentUserId };
+  return { courses: coursesWithRatings, categories, search, category, currentUserId };
 }
 
 function CourseCardSkeleton() {
@@ -210,6 +224,15 @@ export default function CourseCatalog({ loaderData }: Route.ComponentProps) {
                     {course.description}
                   </p>
                 </CardContent>
+                {course.reviewCount > 0 && (
+                  <CardContent className="pt-0 pb-0">
+                    <StarRating
+                      rating={course.averageRating}
+                      count={course.reviewCount}
+                      size={14}
+                    />
+                  </CardContent>
+                )}
                 {course.progress !== null && course.progress > 0 && (
                   <CardContent className="pt-0">
                     <div className="mb-1 flex items-center justify-between text-xs">
