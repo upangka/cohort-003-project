@@ -526,6 +526,7 @@ export default function QuizBuilderWizard({
                           <div
                             ref={dragProvided.innerRef}
                             {...dragProvided.draggableProps}
+                            style={dragProvided.draggableProps.style as React.CSSProperties}
                             className={`flex items-start gap-3 rounded-lg border p-4 ${
                               snapshot.isDragging
                                 ? "bg-muted shadow-lg ring-2 ring-primary/20"

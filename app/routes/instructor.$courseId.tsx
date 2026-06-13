@@ -1225,6 +1225,7 @@ export default function InstructorCourseEditor({
                           <div
                             ref={provided.innerRef}
                             {...provided.draggableProps}
+                            style={provided.draggableProps.style as React.CSSProperties}
                           >
                             <Card
                               className={
@@ -1287,6 +1288,7 @@ export default function InstructorCourseEditor({
                                               <li
                                                 ref={lessonProvided.innerRef}
                                                 {...lessonProvided.draggableProps}
+                                                style={lessonProvided.draggableProps.style as React.CSSProperties}
                                               >
                                                 <div
                                                   className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm${
